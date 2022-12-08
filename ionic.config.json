@@ -1,0 +1,7 @@
+{
+  "name": "SIW Controlling UI",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
