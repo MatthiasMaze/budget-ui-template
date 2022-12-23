@@ -1,0 +1,50 @@
+<!-- ------ -->
+<!-- Header -->
+<!-- ------ -->
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Categories</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<!-- ------- -->
+<!-- Content -->
+<!-- ------- -->
+<ion-content>
+  <ion-list>
+
+    <ion-item button [detail]="true" (click)="openModal()">
+      <ion-label>
+        Consumer Goods
+      </ion-label>
+    </ion-item>
+
+    <ion-item button [detail]="true" (click)="openModal()">
+      <ion-label>
+        Health Insurance
+      </ion-label>
+    </ion-item>
+
+    <ion-item button [detail]="true" (click)="openModal()">
+      <ion-label>
+        Housing Costs
+      </ion-label>
+    </ion-item>
+
+    <ion-item button [detail]="true" (click)="openModal()">
+      <ion-label>
+        Public Transport
+      </ion-label>
+    </ion-item>
+
+  </ion-list>
+
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button (click)="openModal()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

@@ -1,0 +1,33 @@
+<!-- ------ -->
+<!-- Header -->
+<!-- ------ -->
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button color="medium" (click)="cancel()">Cancel</ion-button>
+    </ion-buttons>
+
+    <ion-title>{{isCreate ? 'Add' : 'Edit'}} category</ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button (click)="save()">Save</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<!-- ------- -->
+<!-- Content -->
+<!-- ------- -->
+<ion-content class="ion-padding">
+  <ion-item>
+    <ion-icon name="text" slot="start"></ion-icon>
+    <ion-label position="fixed">Name</ion-label>
+    <ion-input maxlength="40" placeholder="Enter the category's name" required></ion-input>
+  </ion-item>
+
+  <ion-fab *ngIf="!isCreate" slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button (click)="delete()" color="danger">
+      <ion-icon name="trash"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

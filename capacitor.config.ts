@@ -2,7 +2,7 @@ import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'io.ionic.starter',
-  appName: 'SIW Controlling UI',
+  appName: 'Budget UI',
   webDir: 'www',
   bundledWebRuntime: false
 };
