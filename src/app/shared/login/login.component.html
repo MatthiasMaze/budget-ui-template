@@ -1,0 +1,17 @@
+<ion-content>
+  <ion-grid style="height: 100%">
+    <ion-row style="height: 100%" class="ion-align-items-center">
+      <ion-col class="ion-text-center">
+        <h1>Please Log In</h1>
+        <ng-container *ngFor="let loginProvider of loginProviders">
+          <ion-button
+            color="dark" fill="outline" (click)="login(loginProvider)" style="width: 235px">
+            <ion-icon slot="start" size="large" [name]="loginProvider.logo"></ion-icon>
+            Login with {{loginProvider.name}}
+          </ion-button>
+          <br>
+        </ng-container>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

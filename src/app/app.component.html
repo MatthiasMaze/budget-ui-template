@@ -1,10 +1,19 @@
 <ion-app>
   <ion-split-pane contentId="main-content">
-    <ion-menu contentId="main-content" type="overlay">
+    <ion-menu contentId="main-content" type="overlay" [disabled]="(authService.currentUser() | async) === null">
+      <!-- Navigation List -->
       <ion-content>
-        <ion-list id="inbox-list">
-          <ion-list-header>Budget UI</ion-list-header>
-          <ion-note>hi@ionicframework.com</ion-note>
+        <ion-list id="menu-list">
+          <ion-list-header>
+            <ion-label>Budget UI</ion-label>
+            <ion-chip>
+              <ion-avatar>
+                <img [src]="(authService.currentUser() | async)?.photoURL"/>
+              </ion-avatar>
+              <ion-label>{{(authService.currentUser() | async)?.displayName}}</ion-label>
+            </ion-chip>
+          </ion-list-header>
+          <ion-note></ion-note>
 
           <ion-menu-toggle auto-hide="false" *ngFor="let p of appPages; let i = index">
             <ion-item routerDirection="root" [routerLink]="[p.url]" lines="none" detail="false"
@@ -14,8 +23,19 @@
             </ion-item>
           </ion-menu-toggle>
         </ion-list>
-
       </ion-content>
+
+      <!-- Logout Button -->
+      <ion-footer>
+        <ion-toolbar>
+          <ion-buttons>
+            <ion-button *ngIf="authService.currentUser() | async" (click)="authService.logout()" color="primary">
+              <ion-icon class="ion-padding-end" name="log-out"></ion-icon>
+              Logout
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-footer>
     </ion-menu>
     <ion-router-outlet id="main-content"></ion-router-outlet>
   </ion-split-pane>
