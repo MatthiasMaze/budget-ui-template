@@ -14,31 +14,28 @@
 <!-- Content -->
 <!-- ------- -->
 <ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
   <ion-list>
 
-    <ion-item button [detail]="true" (click)="openModal()">
-      <ion-label>
-        Consumer Goods
-      </ion-label>
-    </ion-item>
+    <ng-container *ngIf="categories.length; else noCategories">
+      <ion-item button *ngFor="let category of categories" [detail]="true" (click)="openModal()">
+        <ion-label>
+          {{category.name}}
+        </ion-label>
+      </ion-item>
+    </ng-container>
 
-    <ion-item button [detail]="true" (click)="openModal()">
-      <ion-label>
-        Health Insurance
-      </ion-label>
-    </ion-item>
-
-    <ion-item button [detail]="true" (click)="openModal()">
-      <ion-label>
-        Housing Costs
-      </ion-label>
-    </ion-item>
-
-    <ion-item button [detail]="true" (click)="openModal()">
-      <ion-label>
-        Public Transport
-      </ion-label>
-    </ion-item>
+    <ng-template #noCategories>
+      <ion-item>
+        <ion-icon slot="start" name="alert-circle-outline"></ion-icon>
+        <ion-label>
+          No categories found
+        </ion-label>
+      </ion-item>
+    </ng-template>
 
   </ion-list>
 
