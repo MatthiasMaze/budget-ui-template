@@ -1,5 +1,6 @@
 export const environment = {
   production: true,
+  backendUrl: 'https://budget-service.onrender.com',
   firebaseConfig: {
     apiKey: 'AIzaSyCHKc-9GFvrbXMKLlgua2yAtgCibPLddh8',
     authDomain: 'budget-planner-7eddb.firebaseapp.com',

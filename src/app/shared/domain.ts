@@ -2,6 +2,11 @@
 // Expense
 // -------
 
+export interface Category {
+  id?: string;
+  name: string;
+}
+
 export interface Expense {
   // read-only
   id?: string;
@@ -14,7 +19,14 @@ export interface Expense {
   name: string;
 }
 
-export interface Category {
-  id?: string;
-  name: string;
+export interface PagingCriteria {
+  pageNumber: number;
+  pageSize: number;
+  sortColumn: string;
+  sortDirection: string;
+}
+
+export interface Page<T> {
+  content: T[];
+  totalElements: number;
 }
