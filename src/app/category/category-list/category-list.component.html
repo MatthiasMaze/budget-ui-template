@@ -39,6 +39,10 @@
 
   </ion-list>
 
+  <ion-infinite-scroll [disabled]="lastPageReached" (ionInfinite)="loadNextCategoryPage($event)">
+    <ion-infinite-scroll-content></ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+
   <ion-fab slot="fixed" vertical="bottom" horizontal="end">
     <ion-fab-button (click)="openModal()">
       <ion-icon name="add"></ion-icon>
