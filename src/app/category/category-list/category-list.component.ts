@@ -14,10 +14,9 @@ export class CategoryListComponent implements OnInit {
   categories: Category[] = [];
 
   readonly pagingCriteria: PagingCriteria = {
-    pageNumber: 0,
-    pageSize: 15,
-    sortColumn: 'name',
-    sortDirection: 'asc',
+    page: 0,
+    size: 15,
+    sort: 'name,asc',
   };
 
   constructor(
@@ -30,9 +29,9 @@ export class CategoryListComponent implements OnInit {
     this.loadCategories();
   }
 
-  handleRefresh($event: any): void {
-    this.pagingCriteria.pageNumber = 0;
-    this.loadCategories(() => $event.target.complete());
+  reloadCategories($event?: any): void {
+    this.pagingCriteria.page = 0;
+    this.loadCategories(() => ($event ? $event.target.complete() : {}));
   }
 
   async openModal(category?: Category): Promise<void> {
@@ -43,8 +42,8 @@ export class CategoryListComponent implements OnInit {
       },
     });
     modal.present();
-    const { data, role } = await modal.onWillDismiss();
-    console.log(data, role);
+    const { role } = await modal.onWillDismiss();
+    if (role === 'refresh') this.reloadCategories();
   }
 
   // --------------
@@ -54,7 +53,7 @@ export class CategoryListComponent implements OnInit {
   private loadCategories(next: () => void = () => {}): Subscription {
     return this.categoryService.getCategories(this.pagingCriteria).subscribe({
       next: (categories) => {
-        if (this.pagingCriteria.pageNumber === 0) this.categories = [];
+        if (this.pagingCriteria.page === 0) this.categories = [];
         this.categories.push(...categories.content);
         next();
       },

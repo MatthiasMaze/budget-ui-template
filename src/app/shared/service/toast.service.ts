@@ -11,10 +11,28 @@ export class ToastService {
     console.error(message, error);
     this.toastController
       .create({
-        message: `${message}. Reason: ${error.error?.message || 'unknown'}`,
-        duration: 5000,
+        message: `${message}. ${error.error?.message || ''}`,
+        duration: 2000,
         position: 'bottom',
         icon: 'warning',
+        buttons: [
+          {
+            text: 'Dismiss',
+            role: 'cancel',
+            handler: () => {},
+          },
+        ],
+      })
+      .then((toast) => toast.present());
+  }
+
+  displaySuccessToast(message: string): void {
+    this.toastController
+      .create({
+        message: message,
+        duration: 2000,
+        position: 'bottom',
+        icon: 'checkmark',
         buttons: [
           {
             text: 'Dismiss',

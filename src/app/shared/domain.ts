@@ -20,10 +20,9 @@ export interface Expense {
 }
 
 export interface PagingCriteria {
-  pageNumber: number;
-  pageSize: number;
-  sortColumn: string;
-  sortDirection: string;
+  page: number;
+  size: number;
+  sort: string;
 }
 
 export interface Page<T> {

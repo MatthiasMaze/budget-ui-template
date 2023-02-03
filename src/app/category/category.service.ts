@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import {Category, Page, PagingCriteria} from '../shared/domain';
-import {environment} from "../../environments/environment";
+import { Category, Page, PagingCriteria } from '../shared/domain';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class CategoryService {
@@ -10,12 +10,20 @@ export class CategoryService {
 
   constructor(private readonly httpClient: HttpClient) {}
 
+  // Read
+
   getCategories = (pagingCriteria: PagingCriteria): Observable<Page<Category>> =>
     this.httpClient.get<Page<Category>>(this.apiUrl, {
-      headers: new HttpHeaders({
-        page: pagingCriteria?.pageNumber?.toString(),
-        size: pagingCriteria?.pageSize?.toString(),
-        sort: `${pagingCriteria?.sortColumn},${pagingCriteria?.sortDirection}`,
+      params: new HttpParams({
+        fromObject: { ...pagingCriteria },
       }),
     });
+
+  // Create & Update
+
+  upsertCategory = (category: Category): Observable<void> => this.httpClient.put<void>(this.apiUrl, category);
+
+  // Delete
+
+  deleteCategory = (id: string): Observable<void> => this.httpClient.delete<void>(`${this.apiUrl}/${id}`);
 }

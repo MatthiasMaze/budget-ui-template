@@ -14,14 +14,14 @@
 <!-- Content -->
 <!-- ------- -->
 <ion-content>
-  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+  <ion-refresher slot="fixed" (ionRefresh)="reloadCategories($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
   <ion-list>
 
     <ng-container *ngIf="categories.length; else noCategories">
-      <ion-item button *ngFor="let category of categories" [detail]="true" (click)="openModal()">
+      <ion-item button *ngFor="let category of categories" [detail]="true" (click)="openModal(category)">
         <ion-label>
           {{category.name}}
         </ion-label>
