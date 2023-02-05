@@ -1,8 +1,16 @@
 import { Component } from '@angular/core';
-import { addMonths, set } from 'date-fns';
-import { BehaviorSubject, from, mergeMap } from 'rxjs';
-import { ModalController } from '@ionic/angular';
+import { addMonths, format, set } from 'date-fns';
+import { BehaviorSubject, from, groupBy, mergeMap, toArray } from 'rxjs';
+import { InfiniteScrollCustomEvent, ModalController, RefresherCustomEvent } from '@ionic/angular';
 import { ExpenseModalComponent } from '../expense-modal/expense-modal.component';
+import { Expense, PagingCriteria } from '../../shared/domain';
+import { ExpenseService } from '../expense.service';
+import { ToastService } from '../../shared/service/toast.service';
+
+interface ExpenseGroup {
+  date: string;
+  expenses: Expense[];
+}
 
 @Component({
   selector: 'app-expense-overview',
@@ -10,23 +18,79 @@ import { ExpenseModalComponent } from '../expense-modal/expense-modal.component'
 })
 export class ExpenseListComponent {
   date = new BehaviorSubject<Date>(set(new Date(), { date: 1 }));
+  expenseGroups: ExpenseGroup[] = [];
+  lastPageReached = false;
+  readonly pagingCriteria: PagingCriteria = {
+    page: 0,
+    size: 25,
+    sort: 'date,desc',
+  };
 
-  constructor(private readonly modalCtrl: ModalController) {}
+  constructor(
+    private readonly expenseService: ExpenseService,
+    private readonly modalCtrl: ModalController,
+    private readonly toastService: ToastService
+  ) {
+    this.date.subscribe(() => this.loadExpenses());
+  }
 
   addMonths = (number: number): void => this.date.next(addMonths(this.date.value, number));
 
-  openModal(): void {
-    from(
-      this.modalCtrl.create({
-        component: ExpenseModalComponent,
-      })
-    )
+  async openModal(expense?: Expense): Promise<void> {
+    const modal = await this.modalCtrl.create({
+      component: ExpenseModalComponent,
+      componentProps: { expense: expense ? { ...expense } : {} },
+    });
+    modal.present();
+    const { role } = await modal.onWillDismiss();
+    if (role === 'refresh') this.reloadExpenses();
+  }
+
+  loadNextExpensePage($event: any) {
+    this.pagingCriteria.page++;
+    this.loadExpenses(() => ($event as InfiniteScrollCustomEvent).target.complete());
+  }
+
+  reloadExpenses($event?: any): void {
+    this.pagingCriteria.page = 0;
+    this.loadExpenses(() => ($event ? ($event as RefresherCustomEvent).target.complete() : {}));
+  }
+
+  // --------------
+  // Helper methods
+  // --------------
+
+  private loadExpenses(next: () => void = () => {}): void {
+    this.expenseService
+      .getExpenses({ ...this.pagingCriteria, yearMonth: format(this.date.value, 'yyyyMM') })
       .pipe(
-        mergeMap((modal) => {
-          modal.present();
-          return from(modal.onWillDismiss());
+        mergeMap((expensePage) => {
+          this.lastPageReached = expensePage.last;
+          if (this.pagingCriteria.page === 0) this.expenseGroups = [];
+          return from(expensePage.content).pipe(
+            groupBy((expense) => expense.date),
+            mergeMap((group) => group.pipe(toArray()))
+          );
         })
       )
-      .subscribe((event) => console.log(event));
+      .subscribe({
+        next: (expenses: Expense[]) => {
+          const expenseGroup: ExpenseGroup = {
+            date: expenses[0].date,
+            expenses: this.sortExpenses(expenses),
+          };
+          const expenseGroupWithSameDate = this.expenseGroups.find((other) => other.date === expenseGroup.date);
+          if (!expenseGroupWithSameDate) this.expenseGroups.push(expenseGroup);
+          else
+            expenseGroupWithSameDate.expenses = this.sortExpenses([
+              ...expenseGroupWithSameDate.expenses,
+              ...expenseGroup.expenses,
+            ]);
+          next();
+        },
+        error: (error) => this.toastService.displayErrorToast('Could not load expenses', error),
+      });
   }
+
+  private sortExpenses = (expenses: Expense[]): Expense[] => expenses.sort((a, b) => a.name.localeCompare(b.name));
 }

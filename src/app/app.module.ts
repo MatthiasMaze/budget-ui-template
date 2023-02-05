@@ -1,4 +1,4 @@
-import { LOCALE_ID, NgModule } from '@angular/core';
+import { DEFAULT_CURRENCY_CODE, LOCALE_ID, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouteReuseStrategy } from '@angular/router';
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
@@ -26,6 +26,7 @@ registerLocaleData(locale);
     IonicModule.forRoot(),
   ],
   providers: [
+    { provide: DEFAULT_CURRENCY_CODE, useValue: 'CHF' },
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     { provide: LOCALE_ID, useValue: 'en-CH' },
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },

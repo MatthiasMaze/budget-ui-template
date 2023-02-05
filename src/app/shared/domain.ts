@@ -1,23 +1,6 @@
-// -------
-// Expense
-// -------
-
-export interface Category {
-  id?: string;
-  name: string;
-}
-
-export interface Expense {
-  // read-only
-  id?: string;
-  createdAt?: Date;
-  lastModifiedAt?: Date;
-  // editable
-  amount: number;
-  category: Category;
-  date: Date;
-  name: string;
-}
+// ------
+// Paging
+// ------
 
 export interface PagingCriteria {
   page: number;
@@ -30,3 +13,40 @@ export interface Page<T> {
   last: boolean;
   totalElements: number;
 }
+
+// --------
+// Category
+// --------
+
+export interface Category {
+  id?: string;
+  name: string;
+}
+
+// -------
+// Expense
+// -------
+
+export interface Expense {
+  id: string;
+  createdAt: string;
+  lastModifiedAt: string;
+  amount: number;
+  category: Category;
+  date: string;
+  name: string;
+}
+
+export interface ExpenseUpsertDto {
+  id?: string;
+  amount: number;
+  categoryId: string;
+  date: string;
+  name: string;
+}
+
+export interface ExpenseCriteria extends PagingCriteria {
+  categoryId?: string;
+  yearMonth?: string;
+}
+

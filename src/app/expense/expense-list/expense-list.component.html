@@ -14,84 +14,54 @@
 <!-- Content -->
 <!-- ------- -->
 <ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="reloadExpenses($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
   <ion-list>
-    <ion-item-group>
-      <ion-item-divider>
-        <ion-label>
-          02.12.2022
-        </ion-label>
-      </ion-item-divider>
 
-      <ion-item button [detail]="true" (click)="openModal()">
+    <ng-container *ngIf="expenseGroups.length; else noExpenses">
+      <ion-item-group *ngFor="let expenseGroup of expenseGroups">
+        <ion-item-divider>
+          <ion-label>
+            {{expenseGroup.date | date: 'dd.MM.yyyy'}}
+          </ion-label>
+        </ion-item-divider>
+
+        <ion-item *ngFor="let expense of expenseGroup.expenses" button [detail]="true" (click)="openModal(expense)">
+          <ion-label>
+            <ion-grid>
+              <ion-row>
+                <ion-col>{{expense.name}}</ion-col>
+                <ion-col class="ion-text-center">
+                  <ng-container *ngIf="expense.category">
+                    <ion-icon name="pricetag"></ion-icon>
+                    {{expense.category.name}}
+                  </ng-container>
+                </ion-col>
+                <ion-col class="ion-text-end">{{expense.amount | currency}}</ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-label>
+        </ion-item>
+      </ion-item-group>
+
+    </ng-container>
+
+    <ng-template #noExpenses>
+      <ion-item>
+        <ion-icon slot="start" name="alert-circle-outline"></ion-icon>
         <ion-label>
-          <ion-grid>
-            <ion-row>
-              <ion-col>Coffee machine</ion-col>
-              <ion-col class="ion-text-center">
-                <ion-icon name="pricetag"></ion-icon>
-                Consumer Goods
-              </ion-col>
-              <ion-col class="ion-text-end">3500.00 CHF</ion-col>
-            </ion-row>
-          </ion-grid>
+          No expenses found
         </ion-label>
       </ion-item>
-
-      <ion-item button [detail]="true" (click)="openModal()">
-        <ion-label>
-          <ion-grid>
-            <ion-row>
-              <ion-col>Sanitas</ion-col>
-              <ion-col class="ion-text-center">
-                <ion-icon name="pricetag"></ion-icon>
-                Health Insurance
-              </ion-col>
-              <ion-col class="ion-text-end">322.50 CHF</ion-col>
-            </ion-row>
-          </ion-grid>
-        </ion-label>
-      </ion-item>
-    </ion-item-group>
-
-    <ion-item-group>
-      <ion-item-divider>
-        <ion-label>
-          01.12.2022
-        </ion-label>
-      </ion-item-divider>
-
-      <ion-item button [detail]="true" (click)="openModal()">
-        <ion-label>
-          <ion-grid>
-            <ion-row>
-              <ion-col>Rent</ion-col>
-              <ion-col class="ion-text-center">
-                <ion-icon name="pricetag"></ion-icon>
-                Housing Costs
-              </ion-col>
-              <ion-col class="ion-text-end">1000.00 CHF</ion-col>
-            </ion-row>
-          </ion-grid>
-        </ion-label>
-      </ion-item>
-
-      <ion-item button [detail]="true" (click)="openModal()">
-        <ion-label>
-          <ion-grid>
-            <ion-row>
-              <ion-col>SBB ticket</ion-col>
-              <ion-col class="ion-text-center">
-                <ion-icon name="pricetag"></ion-icon>
-                Public Transport
-              </ion-col>
-              <ion-col class="ion-text-end">30.00 CHF</ion-col>
-            </ion-row>
-          </ion-grid>
-        </ion-label>
-      </ion-item>
-    </ion-item-group>
+    </ng-template>
 
   </ion-list>
+
+  <ion-infinite-scroll [disabled]="lastPageReached" (ionInfinite)="loadNextExpensePage($event)">
+    <ion-infinite-scroll-content></ion-infinite-scroll-content>
+  </ion-infinite-scroll>
 
   <ion-fab slot="fixed" vertical="bottom" horizontal="end">
     <ion-fab-button (click)="openModal()">
