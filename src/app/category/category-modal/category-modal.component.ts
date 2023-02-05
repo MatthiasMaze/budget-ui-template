@@ -13,7 +13,7 @@ import { filter, from, mergeMap } from 'rxjs';
 })
 export class CategoryModalComponent implements OnInit {
   // Passed into the component by the ModalController, available in the ngOnInit
-  category!: Category;
+  category: Category = {} as Category;
 
   readonly categoryForm: FormGroup;
 
@@ -31,7 +31,7 @@ export class CategoryModalComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (this.category) this.categoryForm.patchValue(this.category);
+    this.categoryForm.patchValue(this.category);
   }
 
   cancel(): void {
