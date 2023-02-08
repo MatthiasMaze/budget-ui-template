@@ -10,7 +10,7 @@ import { ToastService } from '../../shared/service/toast.service';
   templateUrl: './category-list.component.html',
 })
 export class CategoryListComponent implements OnInit {
-  categories: Category[] = [];
+  categories: Category[] | null = null;
   lastPageReached = false;
   readonly pagingCriteria: PagingCriteria = {
     page: 0,
@@ -55,7 +55,7 @@ export class CategoryListComponent implements OnInit {
   private loadCategories(next: () => void = () => {}): void {
     this.categoryService.getCategories(this.pagingCriteria).subscribe({
       next: (categories) => {
-        if (this.pagingCriteria.page === 0) this.categories = [];
+        if (this.pagingCriteria.page === 0 || !this.categories) this.categories = [];
         this.categories.push(...categories.content);
         this.lastPageReached = categories.last;
         next();
