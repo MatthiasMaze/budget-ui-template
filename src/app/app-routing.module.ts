@@ -18,11 +18,13 @@ const routes: Routes = [
     path: categoriesPath,
     loadChildren: () => import('./category/category.module').then((m) => m.CategoryModule),
     canActivate: [AuthGuard],
+    title: 'Categories | Budget UI',
   },
   {
     path: expensesPath,
     loadChildren: () => import('./expense/expense.module').then((m) => m.ExpenseModule),
     canActivate: [AuthGuard],
+    title: 'Expenses | Budget UI',
   },
 ];
 
