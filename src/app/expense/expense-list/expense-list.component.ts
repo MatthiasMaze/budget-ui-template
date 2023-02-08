@@ -18,7 +18,7 @@ interface ExpenseGroup {
 })
 export class ExpenseListComponent {
   date = new BehaviorSubject<Date>(set(new Date(), { date: 1 }));
-  expenseGroups: ExpenseGroup[] = [];
+  expenseGroups: ExpenseGroup[] | null = null;
   lastPageReached = false;
   readonly pagingCriteria: PagingCriteria = {
     page: 0,
@@ -31,7 +31,10 @@ export class ExpenseListComponent {
     private readonly modalCtrl: ModalController,
     private readonly toastService: ToastService
   ) {
-    this.date.subscribe(() => this.loadExpenses());
+    this.date.subscribe(() => {
+      this.expenseGroups = null;
+      this.loadExpenses()
+    });
   }
 
   addMonths = (number: number): void => this.date.next(addMonths(this.date.value, number));
@@ -79,6 +82,7 @@ export class ExpenseListComponent {
             date: expenses[0].date,
             expenses: this.sortExpenses(expenses),
           };
+          if (!this.expenseGroups) this.expenseGroups = [];
           const expenseGroupWithSameDate = this.expenseGroups.find((other) => other.date === expenseGroup.date);
           if (!expenseGroupWithSameDate) this.expenseGroups.push(expenseGroup);
           else
