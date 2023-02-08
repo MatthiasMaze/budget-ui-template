@@ -12,6 +12,7 @@ import { ToastService } from '../../shared/service/toast.service';
 export class CategoryListComponent implements OnInit {
   categories: Category[] | null = null;
   lastPageReached = false;
+  loading = false;
   readonly pagingCriteria: PagingCriteria = {
     page: 0,
     size: 25,
@@ -53,14 +54,19 @@ export class CategoryListComponent implements OnInit {
   // --------------
 
   private loadCategories(next: () => void = () => {}): void {
+    this.loading = true;
     this.categoryService.getCategories(this.pagingCriteria).subscribe({
       next: (categories) => {
         if (this.pagingCriteria.page === 0 || !this.categories) this.categories = [];
         this.categories.push(...categories.content);
         this.lastPageReached = categories.last;
         next();
+        this.loading = false;
       },
-      error: (error) => this.toastService.displayErrorToast('Could not load categories', error),
+      error: (error) => {
+        this.toastService.displayErrorToast('Could not load categories', error);
+        this.loading = false;
+      },
     });
   }
 }
