@@ -4,14 +4,22 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-button color="medium" (click)="cancel()">Cancel</ion-button>
+      <ion-button color="medium" (click)="cancel()" [disabled]="submitting">
+        <ion-icon slot="start" name="close"></ion-icon>
+        Cancel
+      </ion-button>
     </ion-buttons>
 
     <ion-title>{{expense.id ? 'Edit' : 'Add'}} Expense</ion-title>
 
     <ion-buttons slot="end">
-      <ion-button (click)="save()" [disabled]="expenseForm.pristine || expenseForm.invalid">Save</ion-button>
+      <ion-button (click)="save()" [disabled]="expenseForm.pristine || expenseForm.invalid || submitting">
+        <ion-icon slot="start" name="save"></ion-icon>
+        Save
+      </ion-button>
     </ion-buttons>
+
+    <ion-progress-bar *ngIf="submitting" type="indeterminate"></ion-progress-bar>
   </ion-toolbar>
 </ion-header>
 
@@ -22,16 +30,17 @@
   <ion-item>
     <ion-icon name="text" slot="start"></ion-icon>
     <ion-label position="fixed">Name</ion-label>
-    <ion-input maxlength="40" placeholder="Enter the expense's name" required formControlName="name"></ion-input>
+    <ion-input maxlength="40" placeholder="Enter the expense's name" required formControlName="name"
+               [disabled]="submitting"></ion-input>
   </ion-item>
 
   <ion-item>
     <ion-icon name="pricetag" slot="start"></ion-icon>
-    <ion-label position="fixed">Category</ion-label>
-    <ion-select placeholder="Choose a category" formControlName="categoryId">
+    <ion-label position="fixed" [class.item-interactive-disabled]="submitting">Category</ion-label>
+    <ion-select placeholder="Choose a category" formControlName="categoryId" [disabled]="submitting">
       <ion-select-option *ngFor="let category of categories" [value]="category.id">{{category.name}}</ion-select-option>
     </ion-select>
-    <ion-button slot="end" (click)="showCategoryModal()">
+    <ion-button slot="end" (click)="showCategoryModal()" [disabled]="submitting">
       <ion-icon slot="icon-only" name="add"></ion-icon>
     </ion-button>
   </ion-item>
@@ -40,14 +49,14 @@
     <ion-icon name="cash" slot="start"></ion-icon>
     <ion-label position="fixed">Amount</ion-label>
     <ion-input inputmode="decimal" [min]="0.01" placeholder="Enter the amount in CHF" required step="0.01"
-               type="number" formControlName="amount"></ion-input>
+               type="number" formControlName="amount" [disabled]="submitting"></ion-input>
     <ion-note slot="end">CHF</ion-note>
   </ion-item>
 
   <ion-item>
     <ion-icon name="calendar" slot="start"></ion-icon>
-    <ion-label position="fixed">Date</ion-label>
-    <ion-datetime-button datetime="date" required></ion-datetime-button>
+    <ion-label position="fixed" [class.item-interactive-disabled]="submitting">Date</ion-label>
+    <ion-datetime-button datetime="date" required [disabled]="submitting"></ion-datetime-button>
     <ion-modal [keepContentsMounted]="true">
       <ng-template>
         <ion-datetime id="date" locale="en-CH" presentation="date" [showDefaultButtons]="true" formControlName="date">
@@ -58,7 +67,7 @@
   </ion-item>
 
   <ion-fab *ngIf="expense.id" slot="fixed" vertical="bottom" horizontal="end">
-    <ion-fab-button (click)="delete()" color="danger">
+    <ion-fab-button (click)="delete()" color="danger" [disabled]="submitting">
       <ion-icon name="trash"></ion-icon>
     </ion-fab-button>
   </ion-fab>

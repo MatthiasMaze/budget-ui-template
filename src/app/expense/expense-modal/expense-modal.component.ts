@@ -20,6 +20,7 @@ export class ExpenseModalComponent implements OnInit {
 
   categories: Category[] = [];
   readonly expenseForm: FormGroup;
+  submitting = false;
 
   constructor(
     private readonly actionSheetService: ActionSheetService,
@@ -50,14 +51,19 @@ export class ExpenseModalComponent implements OnInit {
   }
 
   save(): void {
+    this.submitting = true;
     this.expenseService
       .upsertExpense({ ...this.expenseForm.value, date: format(parseISO(this.expenseForm.value.date), 'yyyy-MM-dd') })
       .subscribe({
         next: () => {
           this.toastService.displaySuccessToast('Expense saved');
           this.modalCtrl.dismiss(null, 'refresh');
+          this.submitting = false;
         },
-        error: (error) => this.toastService.displayErrorToast('Could not save expense', error),
+        error: (error) => {
+          this.toastService.displayErrorToast('Could not save expense', error);
+          this.submitting = false;
+        },
       });
   }
 
@@ -65,14 +71,21 @@ export class ExpenseModalComponent implements OnInit {
     from(this.actionSheetService.showDeletionConfirmation('Are you sure you want to delete this expense?'))
       .pipe(
         filter((action) => action === 'delete'),
-        mergeMap(() => this.expenseService.deleteExpense(this.expense.id))
+        mergeMap(() => {
+          this.submitting = true;
+          return this.expenseService.deleteExpense(this.expense.id);
+        })
       )
       .subscribe({
         next: () => {
           this.toastService.displaySuccessToast('Expense deleted');
           this.modalCtrl.dismiss(null, 'refresh');
+          this.submitting = false;
         },
-        error: (error) => this.toastService.displayErrorToast('Could not delete expense', error),
+        error: (error) => {
+          this.toastService.displayErrorToast('Could not delete expense', error);
+          this.submitting = false;
+        },
       });
   }
 

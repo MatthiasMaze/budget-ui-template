@@ -14,9 +14,9 @@ import { filter, from, mergeMap } from 'rxjs';
 export class CategoryModalComponent implements OnInit {
   // Passed into the component by the ModalController, available in the ngOnInit
   category: Category = {} as Category;
-  submitting = false;
 
   readonly categoryForm: FormGroup;
+  submitting = false;
 
   constructor(
     private readonly actionSheetService: ActionSheetService,
