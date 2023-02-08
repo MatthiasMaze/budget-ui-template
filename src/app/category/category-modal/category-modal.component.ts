@@ -14,6 +14,7 @@ import { filter, from, mergeMap } from 'rxjs';
 export class CategoryModalComponent implements OnInit {
   // Passed into the component by the ModalController, available in the ngOnInit
   category: Category = {} as Category;
+  submitting = false;
 
   readonly categoryForm: FormGroup;
 
@@ -39,12 +40,17 @@ export class CategoryModalComponent implements OnInit {
   }
 
   save(): void {
+    this.submitting = true;
     this.categoryService.upsertCategory(this.categoryForm.value).subscribe({
       next: () => {
         this.toastService.displaySuccessToast('Category saved');
         this.modalCtrl.dismiss(null, 'refresh');
+        this.submitting = false;
       },
-      error: (error) => this.toastService.displayErrorToast('Could not save category', error),
+      error: (error) => {
+        this.toastService.displayErrorToast('Could not save category', error);
+        this.submitting = false;
+      },
     });
   }
 
@@ -52,14 +58,21 @@ export class CategoryModalComponent implements OnInit {
     from(this.actionSheetService.showDeletionConfirmation('Are you sure you want to delete this category?'))
       .pipe(
         filter((action) => action === 'delete'),
-        mergeMap(() => this.categoryService.deleteCategory(this.category.id!))
+        mergeMap(() => {
+          this.submitting = true;
+          return this.categoryService.deleteCategory(this.category.id!);
+        })
       )
       .subscribe({
         next: () => {
           this.toastService.displaySuccessToast('Category deleted');
           this.modalCtrl.dismiss(null, 'refresh');
+          this.submitting = false;
         },
-        error: (error) => this.toastService.displayErrorToast('Could not delete category', error),
+        error: (error) => {
+          this.toastService.displayErrorToast('Could not delete category', error);
+          this.submitting = false;
+        },
       });
   }
 }

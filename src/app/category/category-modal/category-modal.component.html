@@ -4,14 +4,22 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-button color="medium" (click)="cancel()">Cancel</ion-button>
+      <ion-button color="medium" (click)="cancel()" [disabled]="submitting">
+        <ion-icon slot="start" name="close"></ion-icon>
+        Cancel
+      </ion-button>
     </ion-buttons>
 
     <ion-title>{{category.id ? 'Edit' : 'Add'}} category</ion-title>
 
     <ion-buttons slot="end">
-      <ion-button (click)="save()" [disabled]="categoryForm.pristine || categoryForm.invalid">Save</ion-button>
+      <ion-button (click)="save()" [disabled]="categoryForm.pristine || categoryForm.invalid || submitting">
+        <ion-icon slot="start" name="save"></ion-icon>
+        Save
+      </ion-button>
     </ion-buttons>
+
+    <ion-progress-bar *ngIf="submitting" type="indeterminate"></ion-progress-bar>
   </ion-toolbar>
 </ion-header>
 
@@ -22,11 +30,12 @@
   <ion-item>
     <ion-icon name="text" slot="start"></ion-icon>
     <ion-label position="fixed">Name</ion-label>
-    <ion-input maxlength="40" placeholder="Enter the category's name" required formControlName="name"></ion-input>
+    <ion-input maxlength="40" placeholder="Enter the category's name" required formControlName="name"
+               [disabled]="submitting"></ion-input>
   </ion-item>
 
   <ion-fab *ngIf="category.id" slot="fixed" vertical="bottom" horizontal="end">
-    <ion-fab-button (click)="delete()" color="danger">
+    <ion-fab-button (click)="delete()" color="danger" [disabled]="submitting">
       <ion-icon name="trash"></ion-icon>
     </ion-fab-button>
   </ion-fab>
