@@ -20,6 +20,7 @@ export class ExpenseListComponent {
   date = new BehaviorSubject<Date>(set(new Date(), { date: 1 }));
   expenseGroups: ExpenseGroup[] | null = null;
   lastPageReached = false;
+  loading = false;
   readonly pagingCriteria: PagingCriteria = {
     page: 0,
     size: 25,
@@ -33,7 +34,7 @@ export class ExpenseListComponent {
   ) {
     this.date.subscribe(() => {
       this.expenseGroups = null;
-      this.loadExpenses()
+      this.loadExpenses();
     });
   }
 
@@ -64,12 +65,14 @@ export class ExpenseListComponent {
   // --------------
 
   private loadExpenses(next: () => void = () => {}): void {
+    this.loading = true;
     this.expenseService
       .getExpenses({ ...this.pagingCriteria, yearMonth: format(this.date.value, 'yyyyMM') })
       .pipe(
         mergeMap((expensePage) => {
           this.lastPageReached = expensePage.last;
-          if (this.pagingCriteria.page === 0) this.expenseGroups = [];
+          this.loading = false;
+          if (this.pagingCriteria.page === 0 || !this.expenseGroups) this.expenseGroups = [];
           return from(expensePage.content).pipe(
             groupBy((expense) => expense.date),
             mergeMap((group) => group.pipe(toArray()))
@@ -82,9 +85,8 @@ export class ExpenseListComponent {
             date: expenses[0].date,
             expenses: this.sortExpenses(expenses),
           };
-          if (!this.expenseGroups) this.expenseGroups = [];
-          const expenseGroupWithSameDate = this.expenseGroups.find((other) => other.date === expenseGroup.date);
-          if (!expenseGroupWithSameDate) this.expenseGroups.push(expenseGroup);
+          const expenseGroupWithSameDate = this.expenseGroups!.find((other) => other.date === expenseGroup.date);
+          if (!expenseGroupWithSameDate) this.expenseGroups!.push(expenseGroup);
           else
             expenseGroupWithSameDate.expenses = this.sortExpenses([
               ...expenseGroupWithSameDate.expenses,
@@ -92,7 +94,10 @@ export class ExpenseListComponent {
             ]);
           next();
         },
-        error: (error) => this.toastService.displayErrorToast('Could not load expenses', error),
+        error: (error) => {
+          this.toastService.displayErrorToast('Could not load expenses', error);
+          this.loading = false;
+        },
       });
   }
 

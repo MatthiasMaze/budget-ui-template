@@ -19,7 +19,7 @@
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <ion-list [ngSwitch]="categories?.length">
+  <ion-list [ngSwitch]="categories?.length" inset>
 
     <ng-container *ngSwitchCase="null">
       <ion-item *ngFor="let i of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]">

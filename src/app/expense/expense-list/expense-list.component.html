@@ -7,6 +7,7 @@
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>Expenses</ion-title>
+    <ion-progress-bar *ngIf="loading" type="indeterminate"></ion-progress-bar>
   </ion-toolbar>
 </ion-header>
 
@@ -14,11 +15,11 @@
 <!-- Content -->
 <!-- ------- -->
 <ion-content>
-  <ion-refresher slot="fixed" (ionRefresh)="reloadExpenses($event)">
+  <ion-refresher slot="fixed" (ionRefresh)="reloadExpenses($event)" [disabled]="loading">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <ion-list [ngSwitch]="expenseGroups?.length">
+  <ion-list [ngSwitch]="expenseGroups?.length" inset>
 
     <ng-container *ngSwitchCase="null">
       <ion-item-group *ngFor="let i of [0, 1, 2]">
@@ -63,7 +64,8 @@
           </ion-label>
         </ion-item-divider>
 
-        <ion-item *ngFor="let expense of expenseGroup.expenses" button [detail]="true" (click)="openModal(expense)">
+        <ion-item *ngFor="let expense of expenseGroup.expenses" button [detail]="true" (click)="openModal(expense)"
+                  [disabled]="loading">
           <ion-label>
             <ion-grid>
               <ion-row>
@@ -84,12 +86,12 @@
 
   </ion-list>
 
-  <ion-infinite-scroll [disabled]="lastPageReached" (ionInfinite)="loadNextExpensePage($event)">
+  <ion-infinite-scroll [disabled]="lastPageReached || loading" (ionInfinite)="loadNextExpensePage($event)">
     <ion-infinite-scroll-content></ion-infinite-scroll-content>
   </ion-infinite-scroll>
 
   <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-    <ion-fab-button (click)="openModal()">
+    <ion-fab-button (click)="openModal()" [disabled]="loading">
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>
   </ion-fab>
