@@ -15,12 +15,37 @@
 <!-- Content -->
 <!-- ------- -->
 <ion-content>
+  <!-- Refresher -->
   <ion-refresher slot="fixed" (ionRefresh)="reloadCategories($event)" [disabled]="loading">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <ion-list [ngSwitch]="categories?.length" inset>
+  <!-- Search & sort -->
+  <ion-grid class="ion-padding" [formGroup]="searchForm">
+    <ion-row>
+      <ion-col size="12" size-sm="6">
+        <ion-item>
+          <ion-icon name="swap-vertical" slot="start"></ion-icon>
+          <ion-select interface="popover" formControlName="sort">
+            <ion-select-option *ngFor="let sortOption of sortOptions" [value]="sortOption.value">
+              {{sortOption.label}}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+      </ion-col>
+      <ion-col size="12" size-sm="6">
+        <ion-item>
+          <ion-icon name="search" slot="start"></ion-icon>
+          <ion-input maxlength="40" placeholder="Search" [clearInput]="true" formControlName="name"></ion-input>
+        </ion-item>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 
+  <!-- Category list -->
+  <ion-list [ngSwitch]="categories?.length" inset="true">
+
+    <!-- Skeleton -->
     <ng-container *ngSwitchCase="null">
       <ion-item *ngFor="let i of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]">
         <ion-label>
@@ -29,6 +54,7 @@
       </ion-item>
     </ng-container>
 
+    <!-- Empty list -->
     <ion-item *ngSwitchCase="0">
       <ion-icon slot="start" name="alert-circle-outline"></ion-icon>
       <ion-label>
@@ -36,8 +62,10 @@
       </ion-label>
     </ion-item>
 
+    <!-- Categories -->
     <ng-container *ngSwitchDefault>
-      <ion-item button *ngFor="let category of categories" [detail]="true" [disabled]="loading" (click)="openModal(category)">
+      <ion-item button="true" *ngFor="let category of categories" [detail]="true" [disabled]="loading"
+                (click)="openModal(category)">
         <ion-label>
           {{category.name}}
         </ion-label>
@@ -46,10 +74,12 @@
 
   </ion-list>
 
+  <!-- Infinite scroll -->
   <ion-infinite-scroll [disabled]="lastPageReached || loading" (ionInfinite)="loadNextCategoryPage($event)">
     <ion-infinite-scroll-content></ion-infinite-scroll-content>
   </ion-infinite-scroll>
 
+  <!-- Create fab button -->
   <ion-fab slot="fixed" vertical="bottom" horizontal="end">
     <ion-fab-button (click)="openModal()" [disabled]="loading">
       <ion-icon name="add"></ion-icon>

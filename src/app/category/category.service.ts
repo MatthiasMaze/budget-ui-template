@@ -13,11 +13,7 @@ export class CategoryService {
   // Read
 
   getCategories = (pagingCriteria: PagingCriteria): Observable<Page<Category>> =>
-    this.httpClient.get<Page<Category>>(this.apiUrl, {
-      params: new HttpParams({
-        fromObject: { ...pagingCriteria },
-      }),
-    });
+    this.httpClient.get<Page<Category>>(this.apiUrl, { params: new HttpParams({ fromObject: { ...pagingCriteria } }) });
 
   // Create & Update
 

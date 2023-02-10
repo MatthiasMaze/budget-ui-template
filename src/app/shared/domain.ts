@@ -14,6 +14,15 @@ export interface Page<T> {
   totalElements: number;
 }
 
+// ----
+// Misc
+// ----
+
+export interface SortOption {
+  label: string;
+  value: string;
+}
+
 // --------
 // Category
 // --------
@@ -21,6 +30,10 @@ export interface Page<T> {
 export interface Category {
   id?: string;
   name: string;
+}
+
+export interface CategoryCriteria extends PagingCriteria {
+  name?: string;
 }
 
 // -------
