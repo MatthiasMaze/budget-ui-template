@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { IonInput, ModalController } from '@ionic/angular';
 import { BehaviorSubject, filter, from, mergeMap } from 'rxjs';
 import { CategoryModalComponent } from '../../category/category-modal/category-modal.component';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -43,7 +43,7 @@ export class ExpenseModalComponent implements OnInit {
     const { id, amount, category, date, name } = this.expense;
     if (category) this.categories.push(category);
     if (id) this.expenseForm.patchValue({ id, amount, categoryId: category?.id, date, name });
-    this.loadCategories();
+    this.loadAllCategories();
   }
 
   cancel(): void {
@@ -93,14 +93,14 @@ export class ExpenseModalComponent implements OnInit {
     const categoryModal = await this.modalCtrl.create({ component: CategoryModalComponent });
     categoryModal.present();
     const { role } = await categoryModal.onWillDismiss();
-    if (role === 'refresh') this.loadCategories();
+    if (role === 'refresh') this.loadAllCategories();
   }
 
   // --------------
   // Helper methods
   // --------------
 
-  private loadCategories(): void {
+  private loadAllCategories(): void {
     const pageToLoad = new BehaviorSubject(0);
     pageToLoad
       .pipe(mergeMap((page) => this.categoryService.getCategories({ page, size: 25, sort: 'name,asc' })))

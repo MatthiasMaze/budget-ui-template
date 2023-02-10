@@ -1,11 +1,14 @@
-import { Component } from '@angular/core';
-import { addMonths, format, set } from 'date-fns';
-import { BehaviorSubject, from, groupBy, mergeMap, toArray } from 'rxjs';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { addMonths, set } from 'date-fns';
+import { BehaviorSubject, debounce, from, groupBy, interval, mergeMap, Subject, takeUntil, toArray } from 'rxjs';
 import { InfiniteScrollCustomEvent, ModalController, RefresherCustomEvent } from '@ionic/angular';
 import { ExpenseModalComponent } from '../expense-modal/expense-modal.component';
-import { Expense, PagingCriteria } from '../../shared/domain';
+import { Category, Expense, ExpenseCriteria, SortOption } from '../../shared/domain';
 import { ExpenseService } from '../expense.service';
 import { ToastService } from '../../shared/service/toast.service';
+import { formatPeriod } from '../../shared/period';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { CategoryService } from '../../category/category.service';
 
 interface ExpenseGroup {
   date: string;
@@ -16,29 +19,64 @@ interface ExpenseGroup {
   selector: 'app-expense-overview',
   templateUrl: './expense-list.component.html',
 })
-export class ExpenseListComponent {
-  date = new BehaviorSubject<Date>(set(new Date(), { date: 1 }));
+export class ExpenseListComponent implements OnInit, OnDestroy {
+  categories: Category[] = [];
+  date = set(new Date(), { date: 1 });
   expenseGroups: ExpenseGroup[] | null = null;
+  readonly initialSort = 'date,desc';
   lastPageReached = false;
   loading = false;
-  readonly pagingCriteria: PagingCriteria = {
-    page: 0,
-    size: 25,
-    sort: 'date,desc',
-  };
+  searchCriteria: ExpenseCriteria = { page: 0, size: 25, sort: this.initialSort };
+  readonly searchForm: FormGroup;
+  readonly sortOptions: SortOption[] = [
+    { label: 'Created at (newest first)', value: 'createdAt,desc' },
+    { label: 'Created at (oldest first)', value: 'createdAt,asc' },
+    { label: 'Date (newest first)', value: 'date,desc' },
+    { label: 'Date (oldest first)', value: 'date,asc' },
+    { label: 'Name (A-Z)', value: 'name,asc' },
+    { label: 'Name (Z-A)', value: 'name,desc' },
+  ];
+  private readonly unsubscribe = new Subject<void>();
 
   constructor(
+    private readonly categoryService: CategoryService,
     private readonly expenseService: ExpenseService,
+    private readonly formBuilder: FormBuilder,
     private readonly modalCtrl: ModalController,
     private readonly toastService: ToastService
   ) {
-    this.date.subscribe(() => {
-      this.expenseGroups = null;
-      this.loadExpenses();
+    this.searchForm = this.formBuilder.group({
+      categoryIds: [[]],
+      name: [],
+      sort: [this.initialSort],
     });
+    this.searchForm.valueChanges
+      .pipe(
+        takeUntil(this.unsubscribe),
+        debounce((value) => (value.name?.length ? interval(400) : interval(0)))
+      )
+      .subscribe((value) => {
+        this.searchCriteria = { ...this.searchCriteria, ...value, page: 0 };
+        this.loadExpenses();
+      });
   }
 
-  addMonths = (number: number): void => this.date.next(addMonths(this.date.value, number));
+  ngOnInit(): void {
+    this.loadAllCategories();
+    this.loadExpenses();
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe.next();
+    this.unsubscribe.complete();
+  }
+
+  addMonths = (number: number): void => {
+    this.searchCriteria.page = 0;
+    this.expenseGroups = null;
+    this.date = addMonths(this.date, number);
+    this.loadExpenses();
+  };
 
   async openModal(expense?: Expense): Promise<void> {
     const modal = await this.modalCtrl.create({
@@ -51,12 +89,12 @@ export class ExpenseListComponent {
   }
 
   loadNextExpensePage($event: any) {
-    this.pagingCriteria.page++;
+    this.searchCriteria.page++;
     this.loadExpenses(() => ($event as InfiniteScrollCustomEvent).target.complete());
   }
 
   reloadExpenses($event?: any): void {
-    this.pagingCriteria.page = 0;
+    this.searchCriteria.page = 0;
     this.loadExpenses(() => ($event ? ($event as RefresherCustomEvent).target.complete() : {}));
   }
 
@@ -64,15 +102,31 @@ export class ExpenseListComponent {
   // Helper methods
   // --------------
 
+  private loadAllCategories(): void {
+    const pageToLoad = new BehaviorSubject(0);
+    pageToLoad
+      .pipe(mergeMap((page) => this.categoryService.getCategories({ page, size: 25, sort: 'name,asc' })))
+      .subscribe({
+        next: (categories) => {
+          this.categories.push(...categories.content);
+          if (!categories.last) pageToLoad.next(pageToLoad.value + 1);
+        },
+        error: (error) => this.toastService.displayErrorToast('Could not load categories', error),
+      });
+  }
+
   private loadExpenses(next: () => void = () => {}): void {
+    this.searchCriteria.yearMonth = formatPeriod(this.date);
+    if (!this.searchCriteria.categoryIds?.length) delete this.searchCriteria.categoryIds;
+    if (!this.searchCriteria.name) delete this.searchCriteria.name;
     this.loading = true;
     this.expenseService
-      .getExpenses({ ...this.pagingCriteria, yearMonth: format(this.date.value, 'yyyyMM') })
+      .getExpenses(this.searchCriteria)
       .pipe(
         mergeMap((expensePage) => {
           this.lastPageReached = expensePage.last;
           this.loading = false;
-          if (this.pagingCriteria.page === 0 || !this.expenseGroups) this.expenseGroups = [];
+          if (this.searchCriteria.page === 0 || !this.expenseGroups) this.expenseGroups = [];
           return from(expensePage.content).pipe(
             groupBy((expense) => expense.date),
             mergeMap((group) => group.pipe(toArray()))

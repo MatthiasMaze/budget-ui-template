@@ -15,12 +15,48 @@
 <!-- Content -->
 <!-- ------- -->
 <ion-content>
+
+  <!-- Refresher -->
   <ion-refresher slot="fixed" (ionRefresh)="reloadExpenses($event)" [disabled]="loading">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <ion-list [ngSwitch]="expenseGroups?.length" inset>
+  <!-- Search & sort -->
+  <ion-grid class="ion-padding" [formGroup]="searchForm">
+    <ion-row>
+      <ion-col size="12" size-sm="4">
+        <ion-item>
+          <ion-icon name="swap-vertical" slot="start"></ion-icon>
+          <ion-select interface="popover" formControlName="sort">
+            <ion-select-option *ngFor="let sortOption of sortOptions" [value]="sortOption.value">
+              {{sortOption.label}}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+      </ion-col>
+      <ion-col size="12" size-sm="4">
+        <ion-item>
+          <ion-icon name="pricetag" slot="start"></ion-icon>
+          <ion-select placeholder="Category" interface="popover" formControlName="categoryIds" multiple="true">
+            <ion-select-option *ngFor="let category of categories" [value]="category.id">
+              {{category.name}}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+      </ion-col>
+      <ion-col size="12" size-sm="4">
+        <ion-item>
+          <ion-icon name="search" slot="start"></ion-icon>
+          <ion-input maxlength="40" placeholder="Search" [clearInput]="true" formControlName="name"></ion-input>
+        </ion-item>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 
+  <!-- Category list -->
+  <ion-list [ngSwitch]="expenseGroups?.length" inset="true">
+
+    <!-- Skeleton -->
     <ng-container *ngSwitchCase="null">
       <ion-item-group *ngFor="let i of [0, 1, 2]">
         <ion-item-divider>
@@ -49,6 +85,7 @@
       </ion-item-group>
     </ng-container>
 
+    <!-- Empty list -->
     <ion-item *ngSwitchCase="0">
       <ion-icon slot="start" name="alert-circle-outline"></ion-icon>
       <ion-label>
@@ -56,6 +93,7 @@
       </ion-label>
     </ion-item>
 
+    <!-- Expenses -->
     <ng-container *ngSwitchDefault>
       <ion-item-group *ngFor="let expenseGroup of expenseGroups">
         <ion-item-divider>
@@ -64,7 +102,8 @@
           </ion-label>
         </ion-item-divider>
 
-        <ion-item *ngFor="let expense of expenseGroup.expenses" button [detail]="true" (click)="openModal(expense)"
+        <ion-item *ngFor="let expense of expenseGroup.expenses" button="true" [detail]="true"
+                  (click)="openModal(expense)"
                   [disabled]="loading">
           <ion-label>
             <ion-grid>
@@ -86,10 +125,12 @@
 
   </ion-list>
 
+  <!-- Infinite scroll -->
   <ion-infinite-scroll [disabled]="lastPageReached || loading" (ionInfinite)="loadNextExpensePage($event)">
     <ion-infinite-scroll-content></ion-infinite-scroll-content>
   </ion-infinite-scroll>
 
+  <!-- Create fab button -->
   <ion-fab slot="fixed" vertical="bottom" horizontal="end">
     <ion-fab-button (click)="openModal()" [disabled]="loading">
       <ion-icon name="add"></ion-icon>
@@ -108,7 +149,7 @@
       </ion-button>
     </ion-buttons>
 
-    <ion-title>{{ date | async | date:'MMMM yyyy' }}</ion-title>
+    <ion-title>{{ date | date:'MMMM yyyy' }}</ion-title>
 
     <ion-buttons slot="end">
       <ion-button (click)="addMonths(1)">
