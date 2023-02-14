@@ -29,14 +29,12 @@
 <ion-content class="ion-padding" [formGroup]="expenseForm">
   <ion-item>
     <ion-icon name="text" slot="start"></ion-icon>
-    <ion-label position="fixed">Name</ion-label>
     <ion-input maxlength="40" placeholder="Enter the expense's name" required formControlName="name"
                [disabled]="submitting" autofocus="true"></ion-input>
   </ion-item>
 
   <ion-item>
     <ion-icon name="pricetag" slot="start"></ion-icon>
-    <ion-label position="fixed" [class.item-interactive-disabled]="submitting">Category</ion-label>
     <ion-select placeholder="Choose a category" formControlName="categoryId" [disabled]="submitting">
       <ion-select-option *ngFor="let category of categories" [value]="category.id">{{category.name}}</ion-select-option>
     </ion-select>
@@ -47,7 +45,6 @@
 
   <ion-item>
     <ion-icon name="cash" slot="start"></ion-icon>
-    <ion-label position="fixed">Amount</ion-label>
     <ion-input inputmode="decimal" [min]="0.01" placeholder="Enter the amount in CHF" required step="0.01"
                type="number" formControlName="amount" [disabled]="submitting"></ion-input>
     <ion-note slot="end">CHF</ion-note>
@@ -55,7 +52,6 @@
 
   <ion-item>
     <ion-icon name="calendar" slot="start"></ion-icon>
-    <ion-label position="fixed" [class.item-interactive-disabled]="submitting">Date</ion-label>
     <ion-datetime-button datetime="date" required [disabled]="submitting"></ion-datetime-button>
     <ion-modal [keepContentsMounted]="true">
       <ng-template>
