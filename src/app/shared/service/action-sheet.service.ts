@@ -28,6 +28,6 @@ export class ActionSheetService {
     });
     actionSheet.present();
     const { data } = await actionSheet.onDidDismiss();
-    return data?.action;
+    return data.action;
   }
 }

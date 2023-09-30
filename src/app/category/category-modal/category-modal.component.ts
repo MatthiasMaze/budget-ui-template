@@ -8,7 +8,10 @@ import { filter, from } from 'rxjs';
   templateUrl: './category-modal.component.html',
 })
 export class CategoryModalComponent {
-  constructor(private readonly actionSheetService: ActionSheetService, private readonly modalCtrl: ModalController) {}
+  constructor(
+    private readonly actionSheetService: ActionSheetService,
+    private readonly modalCtrl: ModalController,
+  ) {}
 
   cancel(): void {
     this.modalCtrl.dismiss(null, 'cancel');

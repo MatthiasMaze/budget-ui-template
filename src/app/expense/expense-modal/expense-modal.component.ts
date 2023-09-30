@@ -9,7 +9,10 @@ import { ActionSheetService } from '../../shared/service/action-sheet.service';
   templateUrl: './expense-modal.component.html',
 })
 export class ExpenseModalComponent {
-  constructor(private readonly actionSheetService: ActionSheetService, private readonly modalCtrl: ModalController) {}
+  constructor(
+    private readonly actionSheetService: ActionSheetService,
+    private readonly modalCtrl: ModalController,
+  ) {}
 
   cancel(): void {
     this.modalCtrl.dismiss(null, 'cancel');

@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
-import { categoriesPath, expensesPath, loginPath } from './shared/routes';
+import { categoriesPath, defaultPath, expensesPath } from './shared/routes';
 
 const routes: Routes = [
   {
     path: '',
-    redirectTo: expensesPath,
+    redirectTo: defaultPath,
     pathMatch: 'full',
   },
   {
@@ -17,6 +17,10 @@ const routes: Routes = [
     path: expensesPath,
     loadChildren: () => import('./expense/expense.module').then((m) => m.ExpenseModule),
     title: 'Expenses | Budget UI',
+  },
+  {
+    path: '**',
+    redirectTo: defaultPath,
   },
 ];
 

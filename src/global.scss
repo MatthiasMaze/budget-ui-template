@@ -38,3 +38,11 @@ input::-webkit-inner-spin-button {
 input[type=number] {
   -moz-appearance: textfield;
 }
+
+.fixed-datetime-picker::part(native) {
+  height: 100%;
+}
+
+.fixed-datetime-picker {
+  height: 100%;
+}
